@@ -8,29 +8,15 @@ module.exports = {
 		.setDescription('Searches PubMed')
         .addStringOption(option =>
             option.setName("term")
-                  .setDescription("The search terms results to be returned")
+                  .setDescription("The search terms to be returned")
                   .setMaxLength(200)
                   .setRequired(true)),
 	async execute(interaction) {
 		const terms = interaction.options.getString("term");
 		await interaction.deferReply();
 		try {
-			let ids = await searchPubMed(terms); // Assuming this function exists and returns an array of IDs
-			let embed = new EmbedBuilder()
-				.setTitle('PubMed Search Results')
-				.setDescription(`Search results for: ${terms}`)
-				.setColor(0x0099FF)
-				.setTimestamp();
-
-			// Add a field for each ID or group them as needed
-			// Note: There is a limit on the number of fields you can have in an embed
-			ids.forEach((id, index) => {
-				if (index < 25) { // Discord currently allows a max of 25 fields
-					embed.addFields({ name: `Result ${index + 1}`, value: id.toString(), inline: true });
-				}
-			});
-
-			// Reply with the embed
+			const ids = await searchPubMed(terms); // Assuming this is an async function that returns an array of IDs
+			const embed = createSearchResultsEmbed(terms, ids);
 			await interaction.editReply({ embeds: [embed] });
 		} catch (error) {
 			console.error(error);
@@ -39,21 +25,19 @@ module.exports = {
 	},
 };
 
-function createIdEmbed(ids) {
-  // Create a new EmbedBuilder instance
-  const embed = new EmbedBuilder()
-    .setTitle('List of IDs')
-    .setColor(0x0099FF) // You can set any color you like
-    .setTimestamp();
+// Function to create and return the embed
+function createSearchResultsEmbed(terms, ids) {
+  let embed = new EmbedBuilder()
+      .setTitle('PubMed Search Results')
+      .setDescription(`Search results for: ${terms}`)
+      .setColor(0x0099FF)
+      .setTimestamp();
 
-  // Add fields to the embed for each ID
-  // If the list is too long, you might need to split it into multiple embeds
-  ids.forEach((id, index) => {
-    // You could also group them in a single field, depending on how you want to display them
-    embed.addFields({ name: `ID ${index + 1}`, value: id.toString(), inline: true });
+  // Add fields to embed
+  ids.slice(0, 25).forEach((id, index) => { // Ensures not to exceed the embed field limit
+      embed.addFields({ name: `Result ${index + 1}`, value: id.toString(), inline: true });
   });
 
-  // Return the created embed
   return embed;
 }
 const PUBMED_API_BASE_URL = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/';
