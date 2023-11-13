@@ -41,7 +41,7 @@ async function createSearchResultsEmbed(terms, ids) {
         const title = summary.title || 'No title available';
         const authors = summary.authors.map(author => author.name).join(', ') || 'No authors listed';
         const pubDate = summary.pubdate || 'No publication date';
-        embed.addFields({ name: `Result ${index + 1}: ${title}`, value: `Authors: ${authors}\nPublication Date: ${pubDate}` });
+        embed.addFields({ name: `${index + 1}) ${title}`, value: `Authors: ${authors}\nPublication Date: ${pubDate} [PubMed Link](https://pubmed.ncbi.nlm.nih.gov/${id}/)` });
       }
     });
   }
