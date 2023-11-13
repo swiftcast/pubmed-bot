@@ -57,6 +57,13 @@ Contributions to YOUR_BOT_NAME are welcome. To contribute:
 5. Push to the branch (`git push origin feature/AmazingFeature`).
 6. Open a pull request.
 
+## Helpful Links
+
+- [Entrez Programming Utilities Help](https://www.ncbi.nlm.nih.gov/books/NBK25501/)
+- [A General Introduction to the E-utilities](https://www.ncbi.nlm.nih.gov/books/NBK25497/)
+- [The E-utilities In-Depth: Parameters, Syntax and More](https://www.ncbi.nlm.nih.gov/books/NBK25499/#chapter4.ESearch)
+- 
+
 ## License
 
 This project is licensed under the [Your License Choice] - see the LICENSE.md file for details.
