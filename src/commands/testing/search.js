@@ -51,10 +51,11 @@ async function createSearchResultsEmbed(terms, ids) {
 
 
 const PUBMED_API_BASE_URL = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/';
+const PUBMED_API_KEY = process.env.PMAPIKEY;
 
 async function searchPubMed(searchWords) {
   const searchQuery = encodeURIComponent(searchWords);
-  const searchUrl = `${PUBMED_API_BASE_URL}esearch.fcgi?db=pubmed&term=${searchQuery}&retmode=json&retmax=10`;
+  const searchUrl = `${PUBMED_API_BASE_URL}esearch.fcgi?db=pubmed&term=${searchQuery}&retmode=json&retmax=10&api_key=${PUBMED_API_KEY}`;
 
   try {
     const searchResponse = await fetch(searchUrl);
