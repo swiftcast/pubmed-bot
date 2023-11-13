@@ -16,7 +16,7 @@ module.exports = {
 		await interaction.deferReply();
 		try {
 			const ids = await searchPubMed(terms); // Assuming this is an async function that returns an array of IDs
-			const embed = createSearchResultsEmbed(terms, ids);
+			const embed = await createSearchResultsEmbed(terms, ids);
 			await interaction.editReply({ embeds: [embed] });
 		} catch (error) {
 			console.error(error);
@@ -26,20 +26,30 @@ module.exports = {
 };
 
 // Function to create and return the embed
-function createSearchResultsEmbed(terms, ids) {
+async function createSearchResultsEmbed(terms, ids) {
   let embed = new EmbedBuilder()
       .setTitle('PubMed Search Results')
       .setDescription(`Search results for: ${terms}`)
       .setColor(0x0099FF)
       .setTimestamp();
 
-  // Add fields to embed
-  ids.slice(0, 25).forEach((id, index) => { // Ensures not to exceed the embed field limit
-      embed.addFields({ name: `Result ${index + 1}`, value: id.toString(), inline: true });
-  });
+  const summaries = await fetchArticleSummaries(ids);
+  if (summaries) {
+    ids.forEach((id, index) => {
+      if (summaries[id]) {
+        const summary = summaries[id];
+        const title = summary.title || 'No title available';
+        const authors = summary.authors.map(author => author.name).join(', ') || 'No authors listed';
+        const pubDate = summary.pubdate || 'No publication date';
+        embed.addFields({ name: `Result ${index + 1}: ${title}`, value: `Authors: ${authors}\nPublication Date: ${pubDate}` });
+      }
+    });
+  }
 
   return embed;
 }
+
+
 const PUBMED_API_BASE_URL = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/';
 
 async function searchPubMed(searchWords) {
@@ -64,3 +74,17 @@ async function searchPubMed(searchWords) {
   }
 }
 
+// Function to fetch article summaries
+async function fetchArticleSummaries(ids) {
+  const idsString = ids.join(',');
+  const summaryUrl = `${PUBMED_API_BASE_URL}esummary.fcgi?db=pubmed&id=${idsString}&retmode=json`;
+
+  try {
+    const response = await fetch(summaryUrl);
+    const data = await response.json();
+    return data.result;
+  } catch (error) {
+    console.error('Error fetching article summaries:', error);
+    return null;
+  }
+}
